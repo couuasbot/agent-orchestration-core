@@ -4,3 +4,5 @@ workflow-events.jsonl
 tasks/QUEUE.md
 artifacts/
 logs/
+memory/*.md
+!memory/.gitkeep

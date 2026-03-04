@@ -21,9 +21,9 @@
       "model_tier": "creative"
     },
     "reviewer": {
-      "description": "Quality Assurance & Gatekeeper. Verifies artifacts and enforces standards.",
+      "description": "Quality Assurance & Gatekeeper. Verifies artifacts, audits code/content, and enforces standards.",
       "capabilities": ["read_only_runner", "code_review", "approval"],
-      "model_tier": "balanced"
+      "model_tier": "high_reasoning"
     }
   }
 }

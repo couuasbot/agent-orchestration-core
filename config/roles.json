@@ -1,0 +1,24 @@
+{
+  "roles": {
+    "god": {
+      "description": "Orchestrator & Single Source of Truth. The only role allowed to perform disk writes to workflow state and git pushes.",
+      "capabilities": ["write_workflow_state", "git_push", "dispatch_runners", "orchestrate"],
+      "model_tier": "high_reasoning"
+    },
+    "coo": {
+      "description": "Operational Planning & Coordination. Manages schedules, checklists, and cross-agent sync.",
+      "capabilities": ["read_only_runner", "plan_generation", "status_reporting"],
+      "model_tier": "balanced"
+    },
+    "cto": {
+      "description": "Technical Architecture & Implementation. Handles code generation, debugging, and system design.",
+      "capabilities": ["read_only_runner", "code_analysis", "tech_design"],
+      "model_tier": "coding"
+    },
+    "cmo": {
+      "description": "Communications & Content. Manages external messaging, documentation, and copy.",
+      "capabilities": ["read_only_runner", "content_generation", "market_research"],
+      "model_tier": "creative"
+    }
+  }
+}

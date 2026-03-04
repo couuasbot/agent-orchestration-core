@@ -1,0 +1,20 @@
+{
+  "states": [
+    "Inbox",
+    "Ready",
+    "In Progress",
+    "Review",
+    "Done",
+    "Failed"
+  ],
+  "transitions": {
+    "Inbox": ["Ready", "Done", "Failed"],
+    "Ready": ["In Progress"],
+    "In Progress": ["Review", "Failed"],
+    "Review": ["Done", "In Progress"],
+    "Done": [],
+    "Failed": ["Inbox", "Done"]
+  },
+  "queue_file": "tasks/QUEUE.md",
+  "event_log": "workflow-events.jsonl"
+}

@@ -1,0 +1,6 @@
+node_modules/
+.DS_Store
+workflow-events.jsonl
+tasks/QUEUE.md
+artifacts/
+logs/

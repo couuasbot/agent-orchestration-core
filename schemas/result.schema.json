@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openclaw.local/aos/result.schema.json",
+  "title": "AOS Runner Result (result.json)",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["taskId", "runId", "status"],
+  "properties": {
+    "taskId": { "type": "string", "minLength": 1 },
+    "runId": { "type": "string", "minLength": 1 },
+    "status": { "type": "string", "enum": ["success", "failure"] },
+    "summary": { "type": "string" },
+    "outputs": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "error": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "message": { "type": "string" },
+        "stack": { "type": "string" }
+      }
+    }
+  }
+}

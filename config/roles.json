@@ -21,8 +21,8 @@
       "model_tier": "creative"
     },
     "reviewer": {
-      "description": "Quality Assurance & Gatekeeper. Verifies artifacts, audits code/content, and enforces standards.",
-      "capabilities": ["read_only_runner", "code_review", "approval"],
+      "description": "Read-only auditor & gatekeeper. Reviews artifacts/results, checks policy/compliance, and produces audit reports. Must not execute commands, modify config, or write workflow state.",
+      "capabilities": ["read_only_runner", "audit", "risk_assessment", "reporting"],
       "model_tier": "high_reasoning"
     }
   }

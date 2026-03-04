@@ -1,6 +1,6 @@
 [
   {
-    "name": "AOS Heartbeat",
+    "name": "AOS Heartbeat (Autopilot)",
     "schedule": {
       "kind": "cron",
       "expr": "*/30 * * * *",
@@ -8,11 +8,12 @@
     },
     "payload": {
       "kind": "agentTurn",
-      "message": "Run system check: `node ~/.openclaw/workspace-god/skills/agent-orchestration-core/scripts/system_check.js`. If output contains 'AOS_WAKE_UP_NEEDED', use sessions_send to notify main session: '[AOS_WAKE] New tasks ready.'",
-      "timeoutSeconds": 120
+      "model": "baishan/GLM-5",
+      "timeoutSeconds": 240,
+      "message": "Template job. Recommended settings:\n- delivery.mode=none\n- use explicit notify via sessions_send and dedupe via NOTIFY_SENT events\n\nRun: node ~/.openclaw/workspace-god/skills/agent-orchestration-system/scripts/autopilot.js --maxConcurrency=1 --opsConcurrency=2 --slaMinutes=60 --lockTtlMs=900000 --maxTotalSpawns=2\nThen execute returned actions[] (spawn/complete/mismatch/stale/validation) deterministically."
     },
     "delivery": {
-      "mode": "announce"
+      "mode": "none"
     }
   }
 ]

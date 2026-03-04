@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openclaw.local/aos/event.schema.json",
+  "title": "AOS Event (workflow-events.jsonl line)",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schemaVersion", "id", "timestamp", "type", "agent", "payload"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "minimum": 0 },
+    "id": { "type": "string", "minLength": 1 },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "type": { "type": "string", "minLength": 1 },
+    "agent": { "type": "string", "minLength": 1 },
+    "payload": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "dedupeKey": { "type": "string" },
+        "taskId": { "type": "string" },
+        "runId": { "type": "string" },
+        "state": { "type": "string" },
+        "status": { "type": "string" }
+      }
+    }
+  }
+}

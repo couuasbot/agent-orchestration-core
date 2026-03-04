@@ -1,63 +1,57 @@
-# Agent Orchestration Core (AOS)
+# Agent Orchestration System (AOS)
 
-The definitive Agent Operating System for OpenClaw. AOS merges event-sourced communication, role-based delegation, and autonomous drive into a single, cohesive skill.
+AOS is a deterministic **event-sourced orchestration loop** for OpenClaw.
 
-## Features
+- **Single source of truth:** `workflow-events.jsonl` (append-only)
+- **Human view:** `tasks/QUEUE.md` (projection)
+- **Controller:** `dispatch_router.js` (writes) + `queue_sync.js` (projection) + `autopilot.js` (decides)
 
-- **Unified State Machine**: Single source of truth via `workflow-events.jsonl`.
-- **Role-Based Orchestration**: Defines God (Orchestrator), COO (Planner), CTO (Builder), CMO (Strategist), Reviewer (Gatekeeper).
-- **Event Sourcing**: Immutable event log for auditability and reliability.
-- **Autonomous Drive**: Proactive heartbeat loop via `tasks/QUEUE.md`.
-- **CLI Tools**: Robust scripts for queue sync, event dispatch, and system health checks.
+For a detailed snapshot of the current system, see: **`STATE_OF_AOS.md`**.
 
-## Architecture
+## What’s in this repo
 
-### The Trinity (MVC Pattern)
+- `scripts/`
+  - `autopilot.js`: produces deterministic actions (spawn/complete/mismatch/stale/validation)
+  - `dispatch_router.js`: appends validated events (idempotent via `payload.dedupeKey`)
+  - `queue_sync.js`: renders `tasks/QUEUE.md`
+- `schemas/`
+  - `event.schema.json`: contract for each JSONL event
+  - `result.schema.json`: contract for `result.json` written by runners
+- `config/`: roles + lifecycle
+- `cron/`: example cron job templates
 
-| Layer | File | Purpose |
-|-------|------|---------|
-| View | `tasks/QUEUE.md` | Human/Agent interface (read-only projection) |
-| Controller | `config/roles.json`, `config/lifecycle.json` | Role definitions & lifecycle rules |
-| Model | `workflow-events.jsonl` | Single source of truth (append-only) |
-| Persona | `agents/` | Standardized SOUL.md prompts for all roles |
-| Schedule | `cron/` | Standardized Cron Job definitions |
+## Key capabilities (current)
 
-## Installation
+- **Strong binding (runId):** only accept `result.json` when `result.runId == latest DISPATCH.runId`
+- **Per-run artifact isolation:** `<artifactsBaseDir>/<runId>/...`
+- **Dedupe index:** `.aos/dedupe-index.json` for O(1) idempotency
+- **Incremental snapshot:** `.aos/workflow-snapshot.json` for fast projections
+- **Schema validation:** invalid events/results generate `VALIDATION_ERROR`
+- **Global autopilot mutex:** `.aos/autopilot.lock` prevents cron overlap
+- **Two-lane concurrency:** `execution` vs `ops` lanes for responsiveness
 
-1.  **Clone or Download**:
-    Place this folder in your OpenClaw skills directory (e.g., `~/.openclaw/workspace-god/skills/agent-orchestration-core`).
+## Quickstart
 
-2.  **Dependencies**:
-    This skill uses standard Node.js libraries. Ensure your OpenClaw environment has Node.js installed.
+Place this repo under your OpenClaw workspace skills directory:
 
-3.  **Configuration**:
-    - `config/roles.json`: Define agent roles and permissions.
-    - `config/lifecycle.json`: Customize task states and transitions.
-
-4.  **Integration**:
-    - Update your `HEARTBEAT.md` to reference the AOS scripts (see `SKILL.md` for details).
-    - Setup a cron job to run `scripts/system_check.js` periodically (see `cron/jobs.json`).
-    - Copy `agents/{role}/SOUL.md` to your respective workspace folders.
-
-## Usage
-
-### Task Management
-
-Add tasks to `tasks/QUEUE.md`:
-```markdown
-- [ ] Refactor auth module #ready
+```bash
+~/.openclaw/workspace-god/skills/agent-orchestration-system
 ```
 
-### CLI Commands
+Run projection:
+```bash
+node scripts/queue_sync.js
+```
 
-- **Sync Queue**:
-  ```bash
-  node scripts/queue_sync.js
-  ```
-- **Dispatch Event**:
-  ```bash
-  node scripts/dispatch_router.js --type=DISPATCH --payload='{"taskId": "#123", ...}'
-  ```
+Create a task:
+```bash
+node scripts/task_create.js --taskId=#demo-001 --title="Demo" --roleHint=cto --lane=execution
+```
+
+Run autopilot decision:
+```bash
+node scripts/autopilot.js --maxConcurrency=1 --opsConcurrency=2 --slaMinutes=60
+```
 
 ## License
 

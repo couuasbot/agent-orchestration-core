@@ -1,70 +1,74 @@
 const fs = require('fs');
 const path = require('path');
 
-// Configuration - relative to workspace root
-const WORKSPACE_ROOT = process.cwd();
-const QUEUE_FILE = path.join(WORKSPACE_ROOT, 'tasks', 'QUEUE.md');
-const EVENTS_FILE = path.join(WORKSPACE_ROOT, 'workflow-events.jsonl');
+const { getWorkspaceRoot } = require('./lib/workspace');
+const { atomicWriteFile } = require('./lib/util');
+const { getTasksState } = require('./lib/state');
 
-/**
- * 1. Read workflow-events.jsonl to find completed tasks.
- * 2. Read tasks/QUEUE.md.
- * 3. Update checkboxes ([ ] -> [x]) for completed tasks.
- */
+const WORKSPACE_ROOT = getWorkspaceRoot();
+const QUEUE_FILE = path.join(WORKSPACE_ROOT, 'tasks', 'QUEUE.md');
+
+function render(tasks) {
+  const groups = {
+    'Ready': [],
+    'In Progress': [],
+    'Review': [],
+    'Inbox': [],
+    'Done': [],
+    'Failed': []
+  };
+
+  for (const t of tasks.values()) {
+    const s = groups[t.state] ? t.state : 'Inbox';
+    groups[s].push(t);
+  }
+
+  // stable order (createdAt asc)
+  for (const k of Object.keys(groups)) {
+    groups[k].sort((a,b) => String(a.createdAt||'').localeCompare(String(b.createdAt||'')));
+  }
+
+  const lines = [];
+  lines.push('# TASKS');
+
+  function section(name, items) {
+    lines.push(`\n## ${name}`);
+    if (!items.length) {
+      lines.push('- [ ] (No tasks)');
+      return;
+    }
+    for (const t of items) {
+      const checked = (name === 'Done') ? 'x' : ' ';
+      const tags = [];
+      if (name === 'Ready') tags.push('#ready');
+      if (name === 'In Progress') tags.push('#in-progress');
+      if (name === 'Failed') tags.push('#failed');
+      if (name === 'Review') tags.push('#review');
+      const roleTag = t.roleHint ? `@${t.roleHint}` : '';
+      const lane = String(t.lane || '').toLowerCase();
+      const laneTag = lane === 'ops' || lane === 'operations' ? '#ops' : '#exec';
+      lines.push(`- [${checked}] ${t.title || t.taskId} ${t.taskId} ${roleTag} ${laneTag} ${tags.join(' ')}`.replace(/\s+/g,' ').trim());
+    }
+  }
+
+  section('Ready', groups['Ready']);
+  section('In Progress', groups['In Progress']);
+  section('Review', groups['Review']);
+  section('Inbox', groups['Inbox']);
+  section('Failed', groups['Failed']);
+  section('Done', groups['Done']);
+
+  lines.push('');
+  return lines.join('\n');
+}
 
 function syncQueue() {
-  if (!fs.existsSync(EVENTS_FILE)) {
-    console.log('No events file found. Skipping sync.');
-    return;
-  }
-  if (!fs.existsSync(QUEUE_FILE)) {
-    console.log('No QUEUE.md found. Skipping sync.');
-    return;
-  }
+  const tasks = getTasksState();
 
-  // 1. Parse Events
-  const eventsContent = fs.readFileSync(EVENTS_FILE, 'utf8');
-  const events = eventsContent.trim().split('\n').map(line => {
-    try { return JSON.parse(line); } catch (e) { return null; }
-  }).filter(e => e !== null);
-
-  const completedTaskIds = new Set();
-  
-  events.forEach(e => {
-    if (e.type === 'TASK_COMPLETE' && e.payload && e.payload.taskId) {
-      completedTaskIds.add(e.payload.taskId);
-    }
-  });
-
-  // 2. Parse & Update QUEUE.md
-  let queueContent = fs.readFileSync(QUEUE_FILE, 'utf8');
-  const lines = queueContent.split('\n');
-  let updatedCount = 0;
-
-  const newLines = lines.map(line => {
-    // Regex to match: "- [ ] Task description #task-id"
-    // Capture groups: 1=Indent, 2=Checkbox content (space), 3=Description, 4=Tags
-    const taskRegex = /^(\s*- \[)( )(\].*?)(#[\w-]+)(.*)$/;
-    const match = line.match(taskRegex);
-
-    if (match) {
-      const taskId = match[4]; // e.g., #task-123
-      if (completedTaskIds.has(taskId)) {
-        // Task is completed in events but open in file
-        updatedCount++;
-        // Replace "[ ]" with "[x]"
-        return `${match[1]}x${match[3]}${taskId}${match[5]}`; // Construct the line with [x]
-      }
-    }
-    return line;
-  });
-
-  if (updatedCount > 0) {
-    fs.writeFileSync(QUEUE_FILE, newLines.join('\n'), 'utf8');
-    console.log(`Successfully synced ${updatedCount} tasks in QUEUE.md.`);
-  } else {
-    console.log('No pending updates for QUEUE.md.');
-  }
+  const out = render(tasks);
+  fs.mkdirSync(path.dirname(QUEUE_FILE), { recursive: true });
+  atomicWriteFile(QUEUE_FILE, out);
+  console.log('QUEUE_PROJECTED');
 }
 
 syncQueue();

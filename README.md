@@ -10,6 +10,18 @@ The definitive Agent Operating System for OpenClaw. AOS merges event-sourced com
 - **Autonomous Drive**: Proactive heartbeat loop via `tasks/QUEUE.md`.
 - **CLI Tools**: Robust scripts for queue sync, event dispatch, and system health checks.
 
+## Architecture
+
+### The Trinity (MVC Pattern)
+
+| Layer | File | Purpose |
+|-------|------|---------|
+| View | `tasks/QUEUE.md` | Human/Agent interface (read-only projection) |
+| Controller | `config/roles.json`, `config/lifecycle.json` | Role definitions & lifecycle rules |
+| Model | `workflow-events.jsonl` | Single source of truth (append-only) |
+| Persona | `agents/` | Standardized SOUL.md prompts for all roles |
+| Schedule | `cron/` | Standardized Cron Job definitions |
+
 ## Installation
 
 1.  **Clone or Download**:
@@ -24,7 +36,8 @@ The definitive Agent Operating System for OpenClaw. AOS merges event-sourced com
 
 4.  **Integration**:
     - Update your `HEARTBEAT.md` to reference the AOS scripts (see `SKILL.md` for details).
-    - Setup a cron job to run `scripts/system_check.js` periodically.
+    - Setup a cron job to run `scripts/system_check.js` periodically (see `cron/jobs.json`).
+    - Copy `agents/{role}/SOUL.md` to your respective workspace folders.
 
 ## Usage
 

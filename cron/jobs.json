@@ -1,0 +1,18 @@
+[
+  {
+    "name": "AOS Heartbeat",
+    "schedule": {
+      "kind": "cron",
+      "expr": "*/30 * * * *",
+      "tz": "UTC"
+    },
+    "payload": {
+      "kind": "agentTurn",
+      "message": "Run system check: `node ~/.openclaw/workspace-god/skills/agent-orchestration-core/scripts/system_check.js`. If output contains 'AOS_WAKE_UP_NEEDED', use sessions_send to notify main session: '[AOS_WAKE] New tasks ready.'",
+      "timeoutSeconds": 120
+    },
+    "delivery": {
+      "mode": "announce"
+    }
+  }
+]

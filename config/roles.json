@@ -19,6 +19,11 @@
       "description": "Communications & Content. Manages external messaging, documentation, and copy.",
       "capabilities": ["read_only_runner", "content_generation", "market_research"],
       "model_tier": "creative"
+    },
+    "reviewer": {
+      "description": "Quality Assurance & Gatekeeper. Verifies artifacts and enforces standards.",
+      "capabilities": ["read_only_runner", "code_review", "approval"],
+      "model_tier": "balanced"
     }
   }
 }

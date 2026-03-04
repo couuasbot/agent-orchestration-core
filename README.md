@@ -5,7 +5,7 @@ The definitive Agent Operating System for OpenClaw. AOS merges event-sourced com
 ## Features
 
 - **Unified State Machine**: Single source of truth via `workflow-events.jsonl`.
-- **Role-Based Orchestration**: Defines God (Orchestrator), COO (Planner), CTO (Builder), CMO (Strategist).
+- **Role-Based Orchestration**: Defines God (Orchestrator), COO (Planner), CTO (Builder), CMO (Strategist), Reviewer (Gatekeeper).
 - **Event Sourcing**: Immutable event log for auditability and reliability.
 - **Autonomous Drive**: Proactive heartbeat loop via `tasks/QUEUE.md`.
 - **CLI Tools**: Robust scripts for queue sync, event dispatch, and system health checks.

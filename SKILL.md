@@ -43,6 +43,7 @@ Defined in `config/roles.json`.
 | **COO** | Planning, Scheduling, coordination | `read_only_runner` |
 | **CTO** | Architecture, Code, Debugging | `read_only_runner` |
 | **CMO** | Content, Messaging, Research | `read_only_runner` |
+| **Reviewer** | Quality Assurance, Gatekeeping | `read_only_runner` |
 
 ## 4. CLI Reference (How to Execute)
 

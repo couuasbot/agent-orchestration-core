@@ -48,7 +48,12 @@ function defaultTask(taskId) {
     attempts: 0,
     artifactsDir: null, // base artifacts dir (NOT per-run)
     resultPath: null,
-    lastError: null
+    lastError: null,
+
+    // Review / audit
+    reviewerHint: null, // optional: who should review before DONE is accepted
+    lastReview: null,   // { at, reviewer, decision, runId, notes }
+    reviewCount: 0
   };
 }
 
@@ -71,6 +76,7 @@ function applyEvent(tasks, e) {
     t.roleHint = p.roleHint || t.roleHint;
     t.priority = p.priority || t.priority;
     t.lane = p.lane || t.lane || 'execution';
+    if (p.reviewerHint) t.reviewerHint = p.reviewerHint;
     t.slaMinutes = Number(p.slaMinutes || t.slaMinutes || 60);
     t.artifactsDir = p.artifactsDir || t.artifactsDir;
     t.state = 'Inbox';
@@ -86,6 +92,7 @@ function applyEvent(tasks, e) {
     if (p.title && !t.title) t.title = p.title;
     t.state = p.state || t.state;
     if (p.lane) t.lane = p.lane;
+    if (p.reviewerHint) t.reviewerHint = p.reviewerHint;
     if (t.state === 'In Progress' && !t.inProgressAt) t.inProgressAt = ts;
     // If moved out of In Progress explicitly, clear the timer anchor.
     if (t.state !== 'In Progress') t.inProgressAt = null;
@@ -142,6 +149,23 @@ function applyEvent(tasks, e) {
     t.inProgressAt = null;
     t.resultPath = p.resultPath || t.resultPath;
     if (p.artifactsBaseDir) t.artifactsDir = p.artifactsBaseDir;
+    touch(t, ts);
+    tasks.set(id, t);
+    return;
+  }
+
+  if (type === 'TASK_REVIEW') {
+    const id = p.taskId;
+    if (!id) return;
+    const t = tasks.get(id) || defaultTask(id);
+    t.lastReview = {
+      at: ts,
+      reviewer: p.reviewer || null,
+      decision: p.decision || null,
+      runId: p.runId || null,
+      notes: p.notes || null
+    };
+    t.reviewCount = Number(t.reviewCount || 0) + 1;
     touch(t, ts);
     tasks.set(id, t);
     return;

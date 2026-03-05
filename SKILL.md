@@ -38,7 +38,7 @@ Defined in `config/roles.json`.
 | **COO** | Planner, Scheduler | `read_only_runner` |
 | **CTO** | Builder, Architect | `read_only_runner` |
 | **CMO** | Strategist, Content | `read_only_runner` |
-| **Reviewer** | Gatekeeper, Auditor | `read_only_runner` |
+| **Reviewer** | Gatekeeper, Auditor | `read_only_runner` (审查通过后由 God 记录 TASK_REVIEW/TASK_COMPLETE) |
 
 ## 4. CLI Reference
 
@@ -78,6 +78,15 @@ node scripts/dispatch_router.js --type=DISPATCH --payload='{"taskId": "#123", ..
 **Complete Task**:
 ```bash
 node scripts/dispatch_router.js --type=TASK_COMPLETE --payload='{"taskId": "#123", "status": "DONE"}'
+```
+
+**Review a Task (Scheme C / audit-gated)**:
+```bash
+# Approve: records TASK_REVIEW + TASK_COMPLETE(DONE)
+node scripts/task_review.js --taskId=#123 --runId=run_xxx --reviewer=boss --decision=approved --notes="LGTM"
+
+# Reject: records TASK_REVIEW + TASK_STATE(Ready) so it can be re-dispatched
+node scripts/task_review.js --taskId=#123 --runId=run_xxx --reviewer=boss --decision=rejected --notes="Needs changes"
 ```
 
 ## 5. Memory Structure

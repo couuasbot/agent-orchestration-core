@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openclaw.local/aos/review.schema.json",
+  "title": "AOS Task Review (TASK_REVIEW payload)",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["taskId", "runId", "reviewer", "decision"],
+  "properties": {
+    "taskId": { "type": "string", "minLength": 1 },
+    "runId": { "type": "string", "minLength": 1 },
+    "reviewer": { "type": "string", "minLength": 1 },
+    "decision": { "type": "string", "enum": ["approved", "rejected"] },
+    "notes": { "type": "string" },
+    "dedupeKey": { "type": "string" }
+  }
+}

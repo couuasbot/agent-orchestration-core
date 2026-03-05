@@ -45,9 +45,10 @@ function render(tasks) {
       if (name === 'Failed') tags.push('#failed');
       if (name === 'Review') tags.push('#review');
       const roleTag = t.roleHint ? `@${t.roleHint}` : '';
+      const reviewerTag = t.reviewerHint ? `@rev:${t.reviewerHint}` : '';
       const lane = String(t.lane || '').toLowerCase();
       const laneTag = lane === 'ops' || lane === 'operations' ? '#ops' : '#exec';
-      lines.push(`- [${checked}] ${t.title || t.taskId} ${t.taskId} ${roleTag} ${laneTag} ${tags.join(' ')}`.replace(/\s+/g,' ').trim());
+      lines.push(`- [${checked}] ${t.title || t.taskId} ${t.taskId} ${roleTag} ${reviewerTag} ${laneTag} ${tags.join(' ')}`.replace(/\s+/g,' ').trim());
     }
   }
 

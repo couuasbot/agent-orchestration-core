@@ -19,6 +19,7 @@ function main() {
   const roleHint = arg('roleHint', 'cto');
   const priority = arg('priority', 'P1');
   const lane = arg('lane', 'execution'); // execution | ops
+  const reviewerHint = arg('reviewerHint', ''); // optional reviewer role/name
   const slaMinutes = Number(arg('slaMinutes', '60'));
   const dedupeKey = arg('dedupeKey', '');
 
@@ -33,7 +34,7 @@ function main() {
   const create = appendEvent({
     type: 'TASK_CREATE',
     agent: 'god',
-    payload: { taskId, title, details, roleHint, priority, lane, slaMinutes, artifactsDir, dedupeKey }
+    payload: { taskId, title, details, roleHint, priority, lane, reviewerHint: reviewerHint || undefined, slaMinutes, artifactsDir, dedupeKey }
   });
 
   const state = appendEvent({

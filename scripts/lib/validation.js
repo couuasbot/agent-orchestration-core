@@ -34,6 +34,10 @@ function validateEventInput({ type, agent, payload }) {
     if ('dedupeKey' in payload && typeof payload.dedupeKey !== 'string') errors.push(err('payload.dedupeKey', 'must be a string'));
     if ('taskId' in payload && typeof payload.taskId !== 'string') errors.push(err('payload.taskId', 'must be a string'));
     if ('runId' in payload && typeof payload.runId !== 'string') errors.push(err('payload.runId', 'must be a string'));
+    if ('reviewerHint' in payload && typeof payload.reviewerHint !== 'string') errors.push(err('payload.reviewerHint', 'must be a string'));
+    if ('reviewer' in payload && typeof payload.reviewer !== 'string') errors.push(err('payload.reviewer', 'must be a string'));
+    if ('decision' in payload && typeof payload.decision !== 'string') errors.push(err('payload.decision', 'must be a string'));
+    if ('notes' in payload && typeof payload.notes !== 'string') errors.push(err('payload.notes', 'must be a string'));
 
     const upperType = String(type || '').toUpperCase();
 
@@ -58,6 +62,16 @@ function validateEventInput({ type, agent, payload }) {
     if (upperType === 'TASK_COMPLETE') {
       if (!payload.taskId || typeof payload.taskId !== 'string') errors.push(err('payload.taskId', 'is required for TASK_COMPLETE'));
       if (!payload.status || typeof payload.status !== 'string') errors.push(err('payload.status', 'is required for TASK_COMPLETE'));
+    }
+
+    if (upperType === 'TASK_REVIEW') {
+      if (!payload.taskId || typeof payload.taskId !== 'string') errors.push(err('payload.taskId', 'is required for TASK_REVIEW'));
+      if (!payload.runId || typeof payload.runId !== 'string') errors.push(err('payload.runId', 'is required for TASK_REVIEW'));
+      if (!payload.reviewer || typeof payload.reviewer !== 'string') errors.push(err('payload.reviewer', 'is required for TASK_REVIEW'));
+      if (!payload.decision || typeof payload.decision !== 'string') errors.push(err('payload.decision', 'is required for TASK_REVIEW'));
+
+      const d = String(payload.decision || '').toLowerCase();
+      if (payload.decision && d !== 'approved' && d !== 'rejected') errors.push(err('payload.decision', 'must be "approved" or "rejected"'));
     }
   }
 

@@ -51,9 +51,28 @@ function minutesBetween(isoA, isoB) {
   return Math.floor((b - a) / 60000);
 }
 
+function reviewRequestAction({ t, rr, runId }) {
+  return {
+    action: 'review_request',
+    lane: laneOf(t),
+    taskId: t.taskId,
+    runId,
+    reviewerHint: t.reviewerHint || null,
+    resultPath: rr.resultPath,
+    artifactsBaseDir: rr.baseDir,
+    artifactsDir: rr.dir,
+    notify: 'review',
+    summary: rr.obj.summary || ''
+  };
+}
+
 function completeAction({ t, rr, runId }) {
   const status = String(rr.obj.status || '').toLowerCase();
   if (status === 'success') {
+    // Scheme C (review-gated): success results go to Review if reviewerHint is set.
+    if (t.reviewerHint && String(t.reviewerHint).trim()) {
+      return reviewRequestAction({ t, rr, runId });
+    }
     return {
       action: 'complete',
       lane: laneOf(t),

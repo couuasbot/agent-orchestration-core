@@ -163,7 +163,9 @@ function applyEvent(tasks, e) {
       reviewer: p.reviewer || null,
       decision: p.decision || null,
       runId: p.runId || null,
-      notes: p.notes || null
+      notes: p.notes || null,
+      finalStatus: p.finalStatus || null,
+      nextState: p.nextState || null
     };
     t.reviewCount = Number(t.reviewCount || 0) + 1;
     touch(t, ts);

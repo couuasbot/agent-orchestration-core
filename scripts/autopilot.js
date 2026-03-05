@@ -51,7 +51,7 @@ function minutesBetween(isoA, isoB) {
   return Math.floor((b - a) / 60000);
 }
 
-function reviewRequestAction({ t, rr, runId }) {
+function reviewRequestAction({ t, rr, runId, proposedStatus, reason }) {
   return {
     action: 'review_request',
     lane: laneOf(t),
@@ -61,17 +61,21 @@ function reviewRequestAction({ t, rr, runId }) {
     resultPath: rr.resultPath,
     artifactsBaseDir: rr.baseDir,
     artifactsDir: rr.dir,
+    proposedStatus: proposedStatus || null,
     notify: 'review',
-    summary: rr.obj.summary || ''
+    summary: rr.obj.summary || '',
+    reason: reason || null
   };
 }
 
 function completeAction({ t, rr, runId }) {
   const status = String(rr.obj.status || '').toLowerCase();
+  const reviewGate = t.reviewerHint && String(t.reviewerHint).trim();
+
   if (status === 'success') {
     // Scheme C (review-gated): success results go to Review if reviewerHint is set.
-    if (t.reviewerHint && String(t.reviewerHint).trim()) {
-      return reviewRequestAction({ t, rr, runId });
+    if (reviewGate) {
+      return reviewRequestAction({ t, rr, runId, proposedStatus: 'DONE', reason: null });
     }
     return {
       action: 'complete',
@@ -86,6 +90,14 @@ function completeAction({ t, rr, runId }) {
       summary: rr.obj.summary || ''
     };
   }
+
+  // failure path
+  const failureReason = rr.obj.error?.message || rr.obj.summary || 'runner reported failure';
+  if (reviewGate) {
+    // Scheme C: failures also require review; reviewer decides final status / re-dispatch.
+    return reviewRequestAction({ t, rr, runId, proposedStatus: 'FAILED', reason: failureReason });
+  }
+
   return {
     action: 'complete',
     lane: laneOf(t),
@@ -96,7 +108,7 @@ function completeAction({ t, rr, runId }) {
     artifactsDir: rr.dir,
     status: 'FAILED',
     notify: 'failure',
-    reason: rr.obj.error?.message || rr.obj.summary || 'runner reported failure'
+    reason: failureReason
   };
 }
 

@@ -82,11 +82,12 @@ node scripts/dispatch_router.js --type=TASK_COMPLETE --payload='{"taskId": "#123
 
 **Review a Task (Scheme C / audit-gated)**:
 ```bash
-# Approve: records TASK_REVIEW + TASK_COMPLETE(DONE)
+# Approve: records TASK_REVIEW + TASK_COMPLETE(DONE|FAILED)
+# If you omit --finalStatus, it will be derived from result.json (success->DONE, failure->FAILED)
 node scripts/task_review.js --taskId=#123 --runId=run_xxx --reviewer=boss --decision=approved --notes="LGTM"
 
-# Reject: records TASK_REVIEW + TASK_STATE(Ready) so it can be re-dispatched
-node scripts/task_review.js --taskId=#123 --runId=run_xxx --reviewer=boss --decision=rejected --notes="Needs changes"
+# Reject: records TASK_REVIEW + TASK_STATE(nextState). Default nextState=Ready (so it can be re-dispatched)
+node scripts/task_review.js --taskId=#123 --runId=run_xxx --reviewer=boss --decision=rejected --notes="Needs changes" --nextState=Ready
 ```
 
 ## 5. Memory Structure
@@ -101,6 +102,7 @@ AOS uses two protections to prevent stale artifacts from incorrectly completing 
 
 - **Scheme A (Strong binding):** each runner must write `runId` into `result.json`, and the orchestrator will only accept results whose `runId` matches the most recent `DISPATCH.runId`.
 - **Scheme B (Directory isolation):** artifacts are written under `<artifactsBaseDir>/<runId>/` so each attempt is naturally separated.
+- **Scheme C (Review gate):** if a task has `reviewerHint`, BOTH success and failure results are gated into `Review` via `TASK_REVIEW` + reviewer decision; only reviewer approval writes `TASK_COMPLETE(DONE|FAILED)`. Rejection can move the task back to `Ready` for re-dispatch.
 
 ## 6.5 Two-Lane Concurrency (Execution vs Ops)
 

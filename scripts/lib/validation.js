@@ -72,6 +72,14 @@ function validateEventInput({ type, agent, payload }) {
 
       const d = String(payload.decision || '').toLowerCase();
       if (payload.decision && d !== 'approved' && d !== 'rejected') errors.push(err('payload.decision', 'must be "approved" or "rejected"'));
+
+      if ('finalStatus' in payload && typeof payload.finalStatus !== 'string') errors.push(err('payload.finalStatus', 'must be a string'));
+      if ('nextState' in payload && typeof payload.nextState !== 'string') errors.push(err('payload.nextState', 'must be a string'));
+
+      if (typeof payload.finalStatus === 'string') {
+        const fs = String(payload.finalStatus).toUpperCase();
+        if (fs !== 'DONE' && fs !== 'FAILED') errors.push(err('payload.finalStatus', 'must be DONE|FAILED'));
+      }
     }
   }
 

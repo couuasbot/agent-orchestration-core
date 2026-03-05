@@ -53,10 +53,7 @@ function defaultTask(taskId) {
     // Review / audit
     reviewerHint: null, // optional: who should review before DONE is accepted
     lastReview: null,   // { at, reviewer, decision, runId, notes }
-    reviewCount: 0,
-
-    // Contract derived (event-sourced; does NOT mutate details)
-    contractAggregate: null // { generatedAt, dod, dodStatus, evidence }
+    reviewCount: 0
   };
 }
 
@@ -171,21 +168,6 @@ function applyEvent(tasks, e) {
       nextState: p.nextState || null
     };
     t.reviewCount = Number(t.reviewCount || 0) + 1;
-    touch(t, ts);
-    tasks.set(id, t);
-    return;
-  }
-
-  if (type === 'AOS_CONTRACT_AGGREGATE') {
-    const id = p.taskId || p.rootTaskId;
-    if (!id) return;
-    const t = tasks.get(id) || defaultTask(id);
-    t.contractAggregate = {
-      generatedAt: p.generatedAt || ts,
-      dod: Array.isArray(p.dod) ? p.dod : [],
-      dodStatus: (p.dodStatus && typeof p.dodStatus === 'object') ? p.dodStatus : {},
-      evidence: (p.evidence && typeof p.evidence === 'object') ? p.evidence : {}
-    };
     touch(t, ts);
     tasks.set(id, t);
     return;

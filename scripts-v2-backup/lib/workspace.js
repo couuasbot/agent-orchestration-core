@@ -5,7 +5,7 @@ const path = require('path');
  * Priority:
  * 1) AOS_WORKSPACE_ROOT env
  * 2) OPENCLAW_WORKSPACE env
- * 3) derive from this file location: <workspace>/skills/aos/scripts/lib
+ * 3) derive from this file location: <workspace>/skills/agent-orchestration-system/scripts/lib
  */
 function getWorkspaceRoot() {
   return (

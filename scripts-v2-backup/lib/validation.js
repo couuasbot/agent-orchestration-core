@@ -5,7 +5,7 @@ const { getWorkspaceRoot } = require('./workspace');
 
 function loadSchema(relPath) {
   const root = getWorkspaceRoot();
-  const p = path.join(root, 'skills', 'aos', relPath);
+  const p = path.join(root, 'skills', 'agent-orchestration-system', relPath);
   try {
     return JSON.parse(fs.readFileSync(p, 'utf8'));
   } catch (_) {
@@ -107,13 +107,8 @@ function validateResultObject(obj) {
 
   if ('error' in obj && !isObject(obj.error) && obj.error !== null) errors.push(err('error', 'must be an object or null'));
   if (isObject(obj.error)) {
-    // Allow nulls as "absent" to reduce brittle failures from runners.
-    if ('message' in obj.error && obj.error.message !== null && typeof obj.error.message !== 'string') {
-      errors.push(err('error.message', 'must be a string'));
-    }
-    if ('stack' in obj.error && obj.error.stack !== null && typeof obj.error.stack !== 'string') {
-      errors.push(err('error.stack', 'must be a string'));
-    }
+    if ('message' in obj.error && typeof obj.error.message !== 'string') errors.push(err('error.message', 'must be a string'));
+    if ('stack' in obj.error && typeof obj.error.stack !== 'string') errors.push(err('error.stack', 'must be a string'));
   }
 
   return { ok: errors.length === 0, errors, schema: RESULT_SCHEMA ? RESULT_SCHEMA.$id : null };

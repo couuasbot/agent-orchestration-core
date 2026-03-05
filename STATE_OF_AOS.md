@@ -2,7 +2,7 @@
 
 **Status:** Live / running in production (OpenClaw workspace)
 
-**Core idea:** Event-sourced orchestration with deterministic autopilot scheduling. `workflow-events.jsonl` is the single source of truth; `tasks/QUEUE.md` is a projection for humans.
+**Core idea:** Event-sourced orchestration with deterministic autopilot scheduling. `workflow-events.jsonl` is the single source of truth; `.aos/workflow-snapshot.json` is the authoritative incremental projection; `tasks/QUEUE.md` is a projection for humans only (must not drive decisions).
 
 ## Architecture (MVC)
 
@@ -60,7 +60,7 @@ AOS supports **two independent lanes** so ops work doesn’t get blocked by long
 
 ## Operational Loop (Cron)
 
-Recommended: run a periodic cron job that executes `autopilot.js` and then performs the returned actions (spawn/complete/mismatch/stale/validation).
+Recommended: run a periodic cron job that executes `queue_sync.js` first (human view refresh), then runs `autopilot.js`, and finally performs the returned actions (spawn/complete/mismatch/stale/validation). Decisions must rely on the snapshot/event projection, not QUEUE.md.
 
 Notes:
 - Prefer cron delivery `none` and use explicit notifications (deduped by NOTIFY_SENT) to avoid spam.

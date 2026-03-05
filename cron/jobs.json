@@ -10,7 +10,7 @@
       "kind": "agentTurn",
       "model": "baishan/GLM-5",
       "timeoutSeconds": 240,
-      "message": "Template job. Recommended settings:\n- delivery.mode=none\n- use explicit notify via sessions_send and dedupe via NOTIFY_SENT events\n\nRun: node ~/.openclaw/workspace-god/skills/agent-orchestration-system/scripts/autopilot.js --maxConcurrency=1 --opsConcurrency=2 --slaMinutes=60 --lockTtlMs=900000 --maxTotalSpawns=2\nThen execute returned actions[] (spawn/complete/mismatch/stale/validation) deterministically."
+      "message": "Template job. Recommended settings:\n- delivery.mode=none\n- use explicit notify via sessions_send and dedupe via NOTIFY_SENT events\n\nRun: node ~/.openclaw/workspace-god/skills/agent-orchestration-system/scripts/effectors/heartbeat_run.js --maxConcurrency=1 --opsConcurrency=2 --slaMinutes=60 --lockTtlMs=900000 --maxTotalSpawns=2\nThis performs: queue_sync (human view) -> autopilot -> execute_actions (event writes + NOTIFY_REQUEST + AOS_SPAWN_REQUEST)."
     },
     "delivery": {
       "mode": "none"
